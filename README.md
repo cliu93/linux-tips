@@ -3,3 +3,8 @@
 - [Doveco POP Log entries](MAIL.md#doveco-pop-log-entries)
 # [MYSQL](MYSQL.md)
 - [Show mysql processlist](MYSQL.md#show-mysql-process-list)
+# [ZFS](ZFS.md)
+- [Check ARC Usage](ZFS.md#check-arc-usage)
+- [Check ARC Stat](ZFS.md#check-arc-stat)
+- [Check ARC Summary](ZFS.md#check-arc-summary)
+- [Flush File System Buffer](ZFS.md#flush-the-file-system-buffer)
