@@ -21,4 +21,9 @@ Query OK, 0 rows affected (0.00 sec)
 
 mysql> show slave status \G;
 
+stop slave;
+SET GLOBAL SQL_SLAVE_SKIP_COUNTER=1;
+start slave;
+show slave status \G;
+
 ```
