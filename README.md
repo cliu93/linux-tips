@@ -1,4 +1,7 @@
 # linux-tips
+
+# [WEB](WEB.md)
+- [Determine supported HTTP version by the web server](WEB.md#check-supported-http-version-by-the-web-server)
 # [Mail](MAIL.md)
 - [Doveco POP Log entries](MAIL.md#doveco-pop-log-entries)
 # [MYSQL](MYSQL.md)
