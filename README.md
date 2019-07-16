@@ -1,2 +1,3 @@
 # linux-tips
-## [Doveco POP Log entries](MAIL.md#doveco-pop-log-entries)
+# [Mail](MAIL.md)
+- [Doveco POP Log entries](MAIL.md#doveco-pop-log-entries)
