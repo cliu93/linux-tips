@@ -8,7 +8,7 @@ information_schema.processlist
     time >= 2 
     ORDER BY time DESC, id \G
 ```
-# Slave fail to atch up with error 1032
+# Slave fails to catch up with error 1032
 ```bash
 mysql> stop slave;
 Query OK, 0 rows affected (0.00 sec)
