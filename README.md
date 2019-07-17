@@ -7,6 +7,7 @@
 # [MYSQL](MYSQL.md)
 - [Show mysql processlist](MYSQL.md#show-mysql-process-list)
 - [Slave fails to catch up with error 1032](MYSQL.md#slave-fails-to-catch-up-with-error-1032)
+- [Slave fails to catch up with error 1236](MYSQL.md#slave-fails-to-catch-up-with-error-1236)
 # [ZFS](ZFS.md)
 - [Check ARC Usage](ZFS.md#check-arc-usage)
 - [Check ARC Stat](ZFS.md#check-arc-stat)
