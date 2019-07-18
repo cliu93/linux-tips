@@ -1,3 +1,6 @@
+# Table of Contents
+- [Determine supported HTTP version by the web server](WEB.md#check-supported-http-version-by-the-web-server)
+
 # Check supported HTTP version by the web server
 ```bash
 # curl --head https://gateway.b2be.com
