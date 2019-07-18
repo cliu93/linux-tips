@@ -70,3 +70,83 @@ Query OK, 0 rows affected (0.00 sec)
 
 mysql> show slave status \G;
 ```
+# Slave fails to catch up with error 1032 handler error HA_ERR_KEY_NOT_FOUND
+Slave failed to sync because of HA_ERR_KEY_NOT_FOUND
+This error message is telling us that a row that was modified on the master can not be found on the slave:HA_ERR_KEY_NOT_FOUND. 
+
+Let's dig into it.
+
+Check slave status in slave db:
+```bash
+mysql>  show slave status \G;
+*************************** 1. row ***************************
+               Slave_IO_State: Waiting for master to send event
+                  Master_Host: 10.10.0.72
+                  Master_User: mconphoenixdbs04
+                  Master_Port: 3306
+                Connect_Retry: 60
+              Master_Log_File: AUMELL131P-bin.009322
+          Read_Master_Log_Pos: 1072540253
+               Relay_Log_File: phoenix_DB-relay-bin.000249
+                Relay_Log_Pos: 936273164
+        Relay_Master_Log_File: AUMELL131P-bin.009288
+             Slave_IO_Running: Yes
+            Slave_SQL_Running: No
+              Replicate_Do_DB:
+          Replicate_Ignore_DB:
+           Replicate_Do_Table:
+       Replicate_Ignore_Table:
+      Replicate_Wild_Do_Table:
+  Replicate_Wild_Ignore_Table:
+                   Last_Errno: 1032
+                   Last_Error: Could not execute Update_rows event on table unified_message_interface.Message; Can't find record in 'Message', Error_code: 1032; handler error HA_ERR_KEY_NOT_FOUND; the event's master log AUMELL131P-bin.009288, end_log_pos 936273393
+                 Skip_Counter: 0
+          Exec_Master_Log_Pos: 936273013
+              Relay_Log_Space: 37579824419
+              Until_Condition: None
+               Until_Log_File:
+                Until_Log_Pos: 0
+           Master_SSL_Allowed: No
+           Master_SSL_CA_File:
+           Master_SSL_CA_Path:
+              Master_SSL_Cert:
+            Master_SSL_Cipher:
+               Master_SSL_Key:
+        Seconds_Behind_Master: NULL
+Master_SSL_Verify_Server_Cert: No
+                Last_IO_Errno: 0
+                Last_IO_Error:
+               Last_SQL_Errno: 1032
+               Last_SQL_Error: Could not execute Update_rows event on table unified_message_interface.Message; Can't find record in 'Message', Error_code: 1032; handler error HA_ERR_KEY_NOT_FOUND; the event's master log AUMELL131P-bin.009288, end_log_pos 936273393
+  Replicate_Ignore_Server_Ids:
+             Master_Server_Id: 10
+1 row in set (0.00 sec)
+
+[root@mcon-phoenixdbslave-04 mysql]# mysqlbinlog phoenix_DB-relay-bin.000249  –base64-output=decode-rows -v |grep -C 50 936273164
+...
+### UPDATE unified_message_interface.Message
+### WHERE
+###   @1=463715337
+###   @2=1
+###   @3=10234
+###   @4=4778708098
+###   @5='3773937'
+###   @6=2019-07-14 00:12:59
+###   @7=2026-07-17 00:12:59
+###   @8=1
+### SET
+###   @1=463715337
+###   @2=1
+###   @3=10234
+###   @4=4778708098
+###   @5='3773937'
+###   @6=2019-07-14 00:12:59
+###   @7=2026-07-17 00:12:59
+###   @8=3
+# at 936273544
+...
+```
+
+So we know that the unified_message_interface.Message table lost the ID=463715337 record.
+
+Further check on the master node, I can see find out the all missing records and recover back to slave manually.
