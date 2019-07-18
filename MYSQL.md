@@ -150,3 +150,16 @@ Master_SSL_Verify_Server_Cert: No
 So we know that the unified_message_interface.Message table lost the ID=463715337 record.
 
 Further check on the master node, I can see find out the all missing records and recover back to slave manually.
+
+# Mysql export selected data to txt file
+```sql
+SELECT * INTO OUTFILE '/tmp/message.sql'
+FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\n'
+from  unified_message_interface.Message where ID >=463713873 and ID <=463719734
+```
+
+# Mysql load rows from txt file into table
+```sql
+LOAD DATA INFILE '/tmp/message.sql' INTO TABLE Message 
+FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\n';
+```
