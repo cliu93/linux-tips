@@ -1,3 +1,9 @@
+# Table of Contents
+- [Check ARC Usage](ZFS.md#check-arc-usage)
+- [Check ARC Stat](ZFS.md#check-arc-stat)
+- [Check ARC Summary](ZFS.md#check-arc-summary)
+- [Flush File System Buffer](ZFS.md#flush-the-file-system-buffer)
+
 # Check ARC usage
 ```bash
 # cat /proc/spl/kstat/zfs/arcstats |egrep "dnode_size|arc_dnode_limit|arc_meta_used|arc_meta_limit"
