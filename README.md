@@ -8,6 +8,7 @@
 - [Show mysql processlist](MYSQL.md#show-mysql-process-list)
 - [Slave fails to catch up with error 1032](MYSQL.md#slave-fails-to-catch-up-with-error-1032)
 - [Slave fails to catch up with error 1236](MYSQL.md#slave-fails-to-catch-up-with-error-1236)
+- [Slave fails to catch up with error ha_err_key_not_found](MYSQL.md#slave-fails-to-catch-up-with-error-1032-handler-error-ha_err_key_not_found)
 # [ZFS](ZFS.md)
 - [Check ARC Usage](ZFS.md#check-arc-usage)
 - [Check ARC Stat](ZFS.md#check-arc-stat)
