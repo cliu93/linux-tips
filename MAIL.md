@@ -1,3 +1,6 @@
+# Table of Contents
+- [Doveco POP Log entries](MAIL.md#doveco-pop-log-entries)
+
 # Doveco POP Log entries
 
 /etc/dovecot/conf.d/20-pop3.conf
