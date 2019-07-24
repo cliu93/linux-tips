@@ -11,6 +11,7 @@
 - [Slave fails to catch up with error ha_err_key_not_found](MYSQL.md#slave-fails-to-catch-up-with-error-1032-handler-error-ha_err_key_not_found)
 - [Mysql export selected data to txt file](MYSQL.md#mysql-export-selected-data-to-txt-file)
 - [Mysql load rows from txt file into table](MYSQL.md#mysql-load-rows-from-txt-file-into-table)
+- [Copy Mysql Slave LXD snapshot and make it as a new Mysql Slave](MYSQL.md#copy-mysql-slave-lxd-snapshot-and-make-it-as-a-new-mysql-slave)
 # [ZFS](ZFS.md)
 - [Check ARC Usage](ZFS.md#check-arc-usage)
 - [Check ARC Stat](ZFS.md#check-arc-stat)
