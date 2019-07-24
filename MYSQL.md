@@ -185,6 +185,7 @@ FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\n';
 On the target VM server, create an empty container, the content of the container is doesn't matter, it will be overwrited in the next step
 ```bash
 root@mconvm-devall-01:~# lxc copy mcon-proxy-01 mcon-phoenixdb-01
+root@mconvm-devall-01:~# zfs destroy -f lxd/containers/mcon-phoenixdb-01
 ```
 
 2. Send ZFS snapshot from source VM server to targer VM server
@@ -194,6 +195,7 @@ root@mysqlslaves:~# zfs send mysql/containers/AUMELL132D-SLAVE@snapshot-snap277 
 
 3. Modify the new Mysql slave container IP address setting, hostname
 ```bash
+root@mconvm-devall-01:~# zfs set mountpoint=/var/lib/lxd/containers/mcon-phoenixdb-01 lxd/containers/mcon-phoenixdb-01
 root@mconvm-devall-01:~# cat /var/lib/lxd/containers/mcon-phoenixdb-01/rootfs/etc/sysconfig/network
 NETWORKING=yes
 NETWORKING_IPV6=no
