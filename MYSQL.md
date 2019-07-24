@@ -6,6 +6,7 @@
 - [Slave fails to catch up with error ha_err_key_not_found](MYSQL.md#slave-fails-to-catch-up-with-error-1032-handler-error-ha_err_key_not_found)
 - [Mysql export selected data to txt file](MYSQL.md#mysql-export-selected-data-to-txt-file)
 - [Mysql load rows from txt file into table](MYSQL.md#mysql-load-rows-from-txt-file-into-table)
+- [Copy Mysql Slave LXD snapshot and make it as a new Mysql Slave](MYSQL.md#copy-mysql-slave-lxd-snapshot-and-make-it-as-a-new-mysql-slave)
 
 # Show MySQL process list
 ```bash
@@ -171,4 +172,165 @@ from  unified_message_interface.Message where ID >=463713873 and ID <=463719734
 ```sql
 LOAD DATA INFILE '/tmp/message.sql' INTO TABLE Message 
 FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\n';
+```
+
+# Copy Mysql Slave LXD snapshot and make it as a new Mysql Slave
+## Background and requirement
+- Mysql is running above ZFS system
+- Current slave is running inside of LXD container and it has daily snapshot backup
+- Need to use a snaphsot of the Mysql Slave to create a new slave, it might be promoted to master node in the future.
+
+## Procedure
+1. create an empty container on targer VM server
+On the target VM server, create an empty container, the content of the container is doesn't matter, it will be overwrited in the next step
+```bash
+root@mconvm-devall-01:~# lxc copy mcon-proxy-01 mcon-phoenixdb-01
+```
+
+2. Send ZFS snapshot from source VM server to targer VM server
+```zsh
+root@mysqlslaves:~# zfs send mysql/containers/AUMELL132D-SLAVE@snapshot-snap277 | pv -L 20m | ssh root@10.11.0.20 zfs receive -F lxd/containers/mcon-phoenixdb-01
+```
+
+3. Modify the new Mysql slave container IP address setting, hostname
+```bash
+root@mconvm-devall-01:~# cat /var/lib/lxd/containers/mcon-phoenixdb-01/rootfs/etc/sysconfig/network
+NETWORKING=yes
+NETWORKING_IPV6=no
+HOSTNAME=mcon-phoenixdb-01.exmaple.com
+GATEWAY=10.11.0.254
+root@mconvm-devall-01:~# cat /var/lib/lxd/containers/mcon-phoenixdb-01/rootfs/etc/sysconfig/network-scripts/ifcfg-eth0
+DEVICE=eth0
+BOOTPROTO=static
+ONBOOT=yes
+IPADDR=10.11.0.22
+NETMASK=255.255.255.0
+NETWORK=10.11.0.0
+root@mconvm-devall-01:~# cat /var/lib/lxd/containers/mcon-phoenixdb-01/rootfs/etc/hosts
+127.0.0.1   localhost mcon-phoenixdb-01.exmaple.com AUMELL132D.exmaple.com
+127.0.1.1   mcon-phoenixdb-01
+
+# The following lines are desirable for IPv6 capable hosts
+::1     ip6-localhost ip6-loopback
+fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+root@mconvm-devall-01:~#
+```
+
+4. Start new Mysql slave container and adjust the MYSQL settings, like server-id
+```bash
+root@mconvm-devall-01:~# lxc start mcon-phoenixdb-01
+root@mconvm-devall-01:~# lxc exec mcon-phoenixdb-01 bash
+[root@mcon-phoenixdb-01 ~]# vi /etc/my.cnf
+[root@mcon-phoenixdb-01 ~]# /etc/init.d/mysql restart
+```
+5. Reset Master Slave replica
+
+Grant slave permission on Master Mysql DB
+```bash
+mysql> GRANT REPLICATION SLAVE ON *.* TO 'aumell132d-slave'@'10.11.0.22' IDENTIFIED BY 'xxxxxx';
+mysql> flush privileges;
+
+```
+
+```bash
+mysql> show slave status\G;
+*************************** 1. row ***************************
+               Slave_IO_State:
+                  Master_Host: 10.11.0.75
+                  Master_User: aumell132d-slave
+                  Master_Port: 3306
+                Connect_Retry: 60
+              Master_Log_File: AUMELL132D-bin.000883
+          Read_Master_Log_Pos: 771908359
+               Relay_Log_File: AUMELL132D-SLAVE-relay-bin.000509
+                Relay_Log_Pos: 4
+        Relay_Master_Log_File: AUMELL132D-bin.000883
+             Slave_IO_Running: No
+            Slave_SQL_Running: No
+              Replicate_Do_DB:
+          Replicate_Ignore_DB:
+           Replicate_Do_Table:
+       Replicate_Ignore_Table:
+      Replicate_Wild_Do_Table:
+  Replicate_Wild_Ignore_Table:
+                   Last_Errno: 0
+                   Last_Error:
+                 Skip_Counter: 0
+          Exec_Master_Log_Pos: 771908359
+              Relay_Log_Space: 214
+              Until_Condition: None
+               Until_Log_File:
+                Until_Log_Pos: 0
+           Master_SSL_Allowed: No
+           Master_SSL_CA_File:
+           Master_SSL_CA_Path:
+              Master_SSL_Cert:
+            Master_SSL_Cipher:
+               Master_SSL_Key:
+        Seconds_Behind_Master: NULL
+Master_SSL_Verify_Server_Cert: No
+                Last_IO_Errno: 1045
+                Last_IO_Error: error connecting to master 'aumell132d-slave@10.11.0.75:3306' - retry-time: 60  retries: 86400
+               Last_SQL_Errno: 0
+               Last_SQL_Error:
+  Replicate_Ignore_Server_Ids:
+             Master_Server_Id: 0
+ 
+mysql> stop slave;
+mysql> reset slave;
+mysql> CHANGE MASTER TO MASTER_HOST='10.11.0.75',MASTER_USER='aumell132d-slave', MASTER_PASSWORD='xxxxxx',MASTER_LOG_FILE='AUMELL132D-bin.000883',MASTER_LOG_POS=771908359;
+mysql> start slave;
+mysql> show slave status\G;
+*************************** 1. row ***************************
+               Slave_IO_State: Waiting for master to send event
+                  Master_Host: 10.11.0.75
+                  Master_User: aumell132d-slave
+                  Master_Port: 3306
+                Connect_Retry: 60
+              Master_Log_File: AUMELL132D-bin.000884
+          Read_Master_Log_Pos: 99401646
+               Relay_Log_File: mcon-phoenixdb-01-relay-bin.000004
+                Relay_Log_Pos: 99401797
+        Relay_Master_Log_File: AUMELL132D-bin.000884
+             Slave_IO_Running: Yes
+            Slave_SQL_Running: Yes
+              Replicate_Do_DB:
+          Replicate_Ignore_DB:
+           Replicate_Do_Table:
+       Replicate_Ignore_Table:
+      Replicate_Wild_Do_Table:
+  Replicate_Wild_Ignore_Table:
+                   Last_Errno: 0
+                   Last_Error:
+                 Skip_Counter: 0
+          Exec_Master_Log_Pos: 99401646
+              Relay_Log_Space: 99402013
+              Until_Condition: None
+               Until_Log_File:
+                Until_Log_Pos: 0
+           Master_SSL_Allowed: No
+           Master_SSL_CA_File:
+           Master_SSL_CA_Path:
+              Master_SSL_Cert:
+            Master_SSL_Cipher:
+               Master_SSL_Key:
+        Seconds_Behind_Master: 0
+Master_SSL_Verify_Server_Cert: No
+                Last_IO_Errno: 0
+                Last_IO_Error:
+               Last_SQL_Errno: 0
+               Last_SQL_Error:
+  Replicate_Ignore_Server_Ids:
+             Master_Server_Id: 1
+1 row in set (0.00 sec)
+
+ERROR:
+No query specified
+
+mysql>
+
+           
 ```
