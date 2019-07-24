@@ -182,7 +182,7 @@ FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\n';
 
 ## Procedure
 1. create an empty container on targer VM server
-On the target VM server, create an empty container, the content of the container is doesn't matter, it will be overwrited in the next step
+On the target VM server, create an empty container, destroy the zfs
 ```bash
 root@mconvm-devall-01:~# lxc copy mcon-proxy-01 mcon-phoenixdb-01
 root@mconvm-devall-01:~# zfs destroy -f lxd/containers/mcon-phoenixdb-01
