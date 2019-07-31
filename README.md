@@ -5,6 +5,7 @@
 # [Mail](MAIL.md)
 - [Doveco POP Log entries](MAIL.md#doveco-pop-log-entries)
 # [MYSQL](MYSQL.md)
+- [Purge binlog](MYSQL.md#purge-binlog)
 - [Show mysql processlist](MYSQL.md#show-mysql-process-list)
 - [Slave fails to catch up with error 1032](MYSQL.md#slave-fails-to-catch-up-with-error-1032)
 - [Slave fails to catch up with error 1236](MYSQL.md#slave-fails-to-catch-up-with-error-1236)
