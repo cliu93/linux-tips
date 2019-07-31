@@ -1,4 +1,5 @@
 # Table of Contents
+- [Purge binlog](MYSQL.md#purge-binlog)
 - [Show MySQL process list](MYSQL.md#show-mysql-process-list)
 - [Show mysql processlist](MYSQL.md#show-mysql-process-list)
 - [Slave fails to catch up with error 1032](MYSQL.md#slave-fails-to-catch-up-with-error-1032)
@@ -7,6 +8,16 @@
 - [Mysql export selected data to txt file](MYSQL.md#mysql-export-selected-data-to-txt-file)
 - [Mysql load rows from txt file into table](MYSQL.md#mysql-load-rows-from-txt-file-into-table)
 - [Copy Mysql Slave LXD snapshot and make it as a new Mysql Slave](MYSQL.md#copy-mysql-slave-lxd-snapshot-and-make-it-as-a-new-mysql-slave)
+
+# Purge binlog
+```
+mysql> PURGE BINARY LOGS TO 'mysql-bin.000010';
+mysql> PURGE BINARY LOGS BEFORE '2008-04-02 22:46:26';
+mysql> set global expire_logs_days=3;
+```
+
+Add to my.cnf
+expire-logs-days = 3
 
 # Show MySQL process list
 ```bash
