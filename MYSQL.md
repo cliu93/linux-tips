@@ -8,6 +8,7 @@
 - [Mysql export selected data to txt file](MYSQL.md#mysql-export-selected-data-to-txt-file)
 - [Mysql load rows from txt file into table](MYSQL.md#mysql-load-rows-from-txt-file-into-table)
 - [Copy Mysql Slave LXD snapshot and make it as a new Mysql Slave](MYSQL.md#copy-mysql-slave-lxd-snapshot-and-make-it-as-a-new-mysql-slave)
+- [Manual Rotation Slow query log](MYSQL.md#manual-rotation-slow-query-log)
 
 # Purge binlog
 ```
@@ -343,7 +344,37 @@ Master_SSL_Verify_Server_Cert: No
 ERROR:
 No query specified
 
-mysql>
+mysql>     
+```
 
-           
+# Manual Rotation Slow query log
+To manually rotate slow query logs, we’ll temporarily disable slow query logging, flush slow logs, rename the original file & finally re-enable slow query logging.
+
+## get the path to slow query log file
+```bash
+mysql> show variables like '%slow_query%';
++---------------------+--------------------------+
+| Variable_name       | Value                    |
++---------------------+--------------------------+
+| slow_query_log      | ON                       |
+| slow_query_log_file | /var/log/mysqld-slow.log |
++---------------------+--------------------------+
+```
+
+## temporarily disable slow query logging
+```bash
+mysql> set global slow_query_log=off;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> flush slow logs;
+Query OK, 0 rows affected (0.00 sec)
+```
+## manually rotate the slow query log file
+```bash
+# mv /var/log/mysqld-slow.log /var/log/mysqld-slow-$(date +%Y-%m-%d).log
+# gzip -c /var/log/mysqld-slow-$(date +%Y-%m-%d).log
+# touch /var/log/mysqld-slow.log && chown mysql /var/log/mysqld-slow.log && chmod 660 /var/log/mysqld-slow.log
+
+mysql> set global slow_query_log=on;
+Query OK, 0 rows affected (0.00 sec)
 ```
