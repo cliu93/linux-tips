@@ -122,3 +122,13 @@ Clear dentries and inodes.
 Clear PageCache, dentries and inodes. 
 # sync; echo 3 > /proc/sys/vm/drop_caches
 ```
+
+# txg_sync, z_null_iss and txg_quiesce freezes
+```bash
+echo 1073741824 >> /sys/module/zfs/parameters/zfs_arc_min
+Added to the file /etc/modprobe.d/zfs.conf:
+
+options zfs zfs_arc_max=8589934592
+options zfs zfs_arc_min=1073741824
+options zfs zfs_prefetch_disable=1
+```
