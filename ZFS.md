@@ -3,6 +3,7 @@
 - [Check ARC Stat](ZFS.md#check-arc-stat)
 - [Check ARC Summary](ZFS.md#check-arc-summary)
 - [Flush File System Buffer](ZFS.md#flush-the-file-system-buffer)
+- [txg_sync z_null_iss and txg_quiesce freezes](ZFS.md#txg_sync-z_null_iss-and-txg_quiesce-freezes)
 
 # Check ARC usage
 ```bash
@@ -123,7 +124,7 @@ Clear PageCache, dentries and inodes.
 # sync; echo 3 > /proc/sys/vm/drop_caches
 ```
 
-# txg_sync, z_null_iss and txg_quiesce freezes
+# txg_sync z_null_iss and txg_quiesce freezes
 ```bash
 echo 1073741824 >> /sys/module/zfs/parameters/zfs_arc_min
 Added to the file /etc/modprobe.d/zfs.conf:
