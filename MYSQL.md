@@ -84,7 +84,7 @@ So we can see that the slave is trying to read a non-exist position. To fix the 
 mysql> stop slave;
 Query OK, 0 rows affected (0.00 sec)
 
-mysql> change master to master_log_file='AUMELL131P-bin.009274' master_log_pos=1;
+mysql> change master to master_log_file='AUMELL131P-bin.009274',master_log_pos=1;
 Query OK, 0 rows affected (0.02 sec)
 
 mysql> start slave;
